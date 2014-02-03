@@ -60,6 +60,7 @@
   <ItemGroup>
     <Compile Include="DocItem.cs" />
     <Compile Include="Invoice.cs" />
+    <Compile Include="InvoiceRow.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

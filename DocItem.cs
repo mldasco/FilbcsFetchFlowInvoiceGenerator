@@ -11,5 +11,6 @@ namespace FilbcsFetchFlowXmlGenerator
         public string ItemDescription { get; set; }
         public decimal ItemPrice { get; set; }
         public int ItemQuantity { get; set; }
+        public string ItemID { get { return string.Empty; } }
     }
 }
