@@ -11,7 +11,8 @@ namespace FilbcsFetchFlowXmlGenerator
         public string ClientId { get; set; }
         public int Due { get; set; }
         public List<DocItem> DocItems { get; set; }
-    }
+        public string Send { get; set; }
+}
 
     public class InvoiceRow
     {
@@ -19,6 +20,7 @@ namespace FilbcsFetchFlowXmlGenerator
         public int Due { get; set; }
         public DocItem DocItem { get; set; }
         public string ClientName { get; set; }
+        
         
     }
 }
