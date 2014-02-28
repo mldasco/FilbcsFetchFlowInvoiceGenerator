@@ -43,7 +43,7 @@ namespace FilbcsFetchFlowInvoiceGenerator
                                 select new Invoice
                                 {
                                     ClientId = g.Key, 
-                                    Due = 10, 
+                                    Due = 15, 
                                     Send = sendInvoicesViaEmail ? "1":"0", 
                                     DocItems = g.ToList()
                                 };
