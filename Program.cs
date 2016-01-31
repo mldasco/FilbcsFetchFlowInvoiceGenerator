@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
-using System.Xml.Linq;
-using System.Xml.Serialization;
+using System.Text;
 using FilbcsFetchFlowXmlGenerator;
 using LinqToExcel;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 
 namespace FilbcsFetchFlowInvoiceGenerator
@@ -19,14 +20,21 @@ namespace FilbcsFetchFlowInvoiceGenerator
                 var sheetName = Console.ReadLine();
                 Console.Write("Enter the fetch flow account password:");
                 var password = Console.ReadLine();
-                var sendInvoicesViaEmail = PromptToProceed("Send invoices via email?");
-                
+                int dueInDays; 
+                Console.Write("Enter number of days from now before invoices are due:");
+
+                while (!int.TryParse(Console.ReadLine(), out dueInDays))
+                {
+                    Console.Write("Enter number of days from now before invoices are due:");
+                }    
+
                 var excel = new ExcelQueryFactory("FilBCS Monthly Invoicing.xlsx");
                 var invoiceRows = from row in excel.Worksheet(sheetName)
                                   select new InvoiceRow
                                   {
                                       ClientId = row["ClientId"].Cast<string>(),
                                       ClientName = row["First Name"].Cast<string>() + " " + row["Surname"].Cast<string>(),
+                                      ClientEmail = row["Invoice Email"].Cast<string>(),
                                       Due = row["Due"].Cast<int>(),
                                       DocItem = new DocItem
                                       {
@@ -36,89 +44,54 @@ namespace FilbcsFetchFlowInvoiceGenerator
                                       }
                                   };
 
+                
                 var invoices = from rows in invoiceRows.ToList()
-                               group rows.DocItem by rows.ClientId
+                               group rows.DocItem by new { rows.ClientId, rows.ClientEmail } 
                                 into g
                                 where g.Key != null 
                                 select new Invoice
                                 {
-                                    ClientId = g.Key, 
-                                    Due = 15, 
-                                    Send = sendInvoicesViaEmail ? "1":"0", 
-                                    DocItems = g.ToList()
+                                    ClientId = g.Key.ClientId,
+                                    Email = g.Key.ClientEmail,
+                                    Due = dueInDays, 
+                                    DocItems = g.ToList(),
                                 };
-                               
+
+                var baseUrl = "https://www.BILLIVING.com/API2";
+                var invoiceUrl = baseUrl + "/v1/invoices";
+                var apiKey = "8e715d34-3c41-4c45-8ee7-a440ee48525f";
+                string credentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(apiKey + ":" + password));
 
 
-                foreach (var invoice in invoices)
+                foreach (var invoice in invoices.Where(i=>i.ClientId!=null))
                 {
-
                     string clientName = invoiceRows.First(ir => ir.ClientId == invoice.ClientId).ClientName;
-                    var stringwriter = new System.IO.StringWriter();
-                    var serializer = new XmlSerializer(invoice.GetType());
-                    serializer.Serialize(stringwriter, invoice);
-                    var invoiceXml = stringwriter.ToString();
-                    XDocument invoiceFullXml = XDocument.Parse(invoiceXml);
-                    string invoiceInnerXml = invoiceFullXml.FirstNode.ToString();
-                    invoiceInnerXml = invoiceInnerXml.Replace("</Invoice>", "");
-                    invoiceInnerXml =
-                        invoiceInnerXml.Replace(
-                            "<Invoice xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">",
-                            "");
 
-                    string xmlRequest =
-                        @"<?xml version=""1.0"" encoding=""utf-8"" ?>" +
-                        String.Format(
-                            "    <Request authtoken=\"8e715d34-3c41-4c45-8ee7-a440ee48525f\" password=\"{0}\">",
-                            password) +
-                        @"    <Action type=""invoice"" method=""create"">" +
-                        invoiceInnerXml +
-                        @"    </Action>" +
-                        @"</Request>";
+                    var invoiceJson = JsonConvert.SerializeObject(invoice);
 
-                    var requestXml = XDocument.Parse(xmlRequest);
-
-
-
-                    // build XML request 
-                    var httpRequest =
-                        HttpWebRequest.Create("https://www.fetchflow.com/API/XMLRequest/ ");
-                    httpRequest.Method = "POST";
-                    httpRequest.ContentType = "text/xml";
-
-                    // set appropriate headers
-
-                    using (var requestStream = httpRequest.GetRequestStream())
+                    string result;
+                    using (var client = new WebClient())
                     {
-                        requestXml.Save(requestStream);
+                        client.Headers.Add(HttpRequestHeader.ContentType, "application/json");
+                        client.Headers.Add(HttpRequestHeader.Accept, "*/*");
+                        client.Headers.Add(HttpRequestHeader.Authorization, "Basic " + credentials);
+                        byte[] bytes = Encoding.UTF8.GetBytes(invoiceJson);
+                        result = client.UploadString(invoiceUrl, Encoding.ASCII.GetString(bytes).Replace("?"," "));
+                        Console.WriteLine("Invoice for {0} - created successfully", clientName);
                     }
 
-                    using (var response = (HttpWebResponse)httpRequest.GetResponse())
-                    using (var responseStream = response.GetResponseStream())
+                    dynamic invoiceRespone = JObject.Parse(result);
+              
+                    using (var client = new WebClient())
                     {
-                        // may want to check response.StatusCode to
-                        // see if the request was successful
-
-                        var responseDoc = XDocument.Load(responseStream);
-                        string status = responseDoc.Root
-                            .Elements()
-                            .First(node => node.Name.LocalName == "Action")
-                            .Attribute("status")
-                            .Value;
-                        if (status != "success")
-                        {
-                            Console.WriteLine("Invoice for {0} - failed with status: {1}", clientName, status);
-                            var proceed = PromptToProceed("Do you want to proceed generating other invoices?");
-
-                            if (!proceed)
-                            {
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine("Invoice for {0} - created successfully", clientName);
-                        }
+                        client.Headers.Add(HttpRequestHeader.ContentType, "application/json");
+                        client.Headers.Add(HttpRequestHeader.Accept, "*/*");
+                        client.Headers.Add(HttpRequestHeader.Authorization, "Basic " + credentials);
+                        var emailTo = new EmailTo() {To = invoice.Email};
+                        var emailJson = JsonConvert.SerializeObject(emailTo);
+                        byte[] bytes = Encoding.Default.GetBytes(emailJson);
+                        client.UploadString(baseUrl+ invoiceRespone.Uri+"/send", Encoding.UTF8.GetString(bytes));
+                        Console.WriteLine("Invoice for {0} - emailed successfully", clientName);
                     }
                 }
 

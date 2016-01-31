@@ -60,6 +60,10 @@
     <Reference Include="log4net">
       <HintPath>packages\LinqToExcel.1.7.1\lib\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>packages\Newtonsoft.Json.8.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Remotion">
       <HintPath>packages\LinqToExcel.1.7.1\lib\Remotion.dll</HintPath>
     </Reference>
@@ -71,6 +75,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -79,6 +84,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DocItem.cs" />
+    <Compile Include="EmailTo.cs" />
     <Compile Include="Invoice.cs" />
     <Compile Include="InvoiceRow.cs" />
     <Compile Include="Program.cs" />

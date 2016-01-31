@@ -9,6 +9,7 @@ namespace FilbcsFetchFlowInvoiceGenerator
         public int Due { get; set; }
         public DocItem DocItem { get; set; }
         public string ClientName { get; set; }
+        public string ClientEmail { get; set; }
 
 
     }
