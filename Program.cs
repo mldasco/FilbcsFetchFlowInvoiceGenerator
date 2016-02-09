@@ -76,11 +76,12 @@ namespace FilbcsFetchFlowInvoiceGenerator
                         client.Headers.Add(HttpRequestHeader.Accept, "*/*");
                         client.Headers.Add(HttpRequestHeader.Authorization, "Basic " + credentials);
                         byte[] bytes = Encoding.UTF8.GetBytes(invoiceJson);
+                        
                         result = client.UploadString(invoiceUrl, Encoding.ASCII.GetString(bytes).Replace("?"," "));
                         Console.WriteLine("Invoice for {0} - created successfully", clientName);
                     }
 
-                    dynamic invoiceRespone = JObject.Parse(result);
+                    dynamic invoiceResponse = JObject.Parse(result);
               
                     using (var client = new WebClient())
                     {
@@ -90,7 +91,7 @@ namespace FilbcsFetchFlowInvoiceGenerator
                         var emailTo = new EmailTo() {To = invoice.Email};
                         var emailJson = JsonConvert.SerializeObject(emailTo);
                         byte[] bytes = Encoding.Default.GetBytes(emailJson);
-                        client.UploadString(baseUrl+ invoiceRespone.Uri+"/send", Encoding.UTF8.GetString(bytes));
+                        client.UploadString(baseUrl+ invoiceResponse.Uri+"/send", Encoding.UTF8.GetString(bytes));
                         Console.WriteLine("Invoice for {0} - emailed successfully", clientName);
                     }
                 }

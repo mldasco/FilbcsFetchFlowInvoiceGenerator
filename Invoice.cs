@@ -48,6 +48,9 @@ namespace FilbcsFetchFlowXmlGenerator
 
         [DataMember]
         public string Email { get; set; }
+
+        [DataMember]
+        public bool AcceptPayPal => true;
     }
 }
     
