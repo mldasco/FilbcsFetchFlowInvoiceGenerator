@@ -23,6 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -54,8 +55,8 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="LinqToExcel">
-      <HintPath>packages\LinqToExcel.1.7.1\lib\LinqToExcel.dll</HintPath>
+    <Reference Include="LinqToExcel, Version=1.11.0.0, Culture=neutral, PublicKeyToken=9c8ea65a58f03f1f, processorArchitecture=MSIL">
+      <HintPath>packages\LinqToExcel.1.11.0\lib\LinqToExcel.dll</HintPath>
     </Reference>
     <Reference Include="log4net">
       <HintPath>packages\LinqToExcel.1.7.1\lib\log4net.dll</HintPath>
@@ -64,14 +65,14 @@
       <HintPath>packages\Newtonsoft.Json.8.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Remotion">
-      <HintPath>packages\LinqToExcel.1.7.1\lib\Remotion.dll</HintPath>
+    <Reference Include="Remotion, Version=1.13.52.2, Culture=neutral, PublicKeyToken=0669cf0452175907, processorArchitecture=MSIL">
+      <HintPath>packages\LinqToExcel.1.11.0\lib\Remotion.dll</HintPath>
     </Reference>
-    <Reference Include="Remotion.Data.Linq">
-      <HintPath>packages\LinqToExcel.1.7.1\lib\Remotion.Data.Linq.dll</HintPath>
+    <Reference Include="Remotion.Data.Linq, Version=1.13.52.2, Culture=neutral, PublicKeyToken=0669cf0452175907, processorArchitecture=MSIL">
+      <HintPath>packages\LinqToExcel.1.11.0\lib\Remotion.Data.Linq.dll</HintPath>
     </Reference>
-    <Reference Include="Remotion.Interfaces">
-      <HintPath>packages\LinqToExcel.1.7.1\lib\Remotion.Interfaces.dll</HintPath>
+    <Reference Include="Remotion.Interfaces, Version=1.13.52.2, Culture=neutral, PublicKeyToken=0669cf0452175907, processorArchitecture=MSIL">
+      <HintPath>packages\LinqToExcel.1.11.0\lib\Remotion.Interfaces.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -96,6 +97,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

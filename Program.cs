@@ -57,7 +57,7 @@ namespace FilbcsFetchFlowInvoiceGenerator
                                     DocItems = g.ToList(),
                                 };
 
-                var baseUrl = "https://www.BILLIVING.com/API2";
+                var baseUrl = "https://www.BILLIVING.com/api2";
                 var invoiceUrl = baseUrl + "/v1/invoices";
                 var apiKey = "8e715d34-3c41-4c45-8ee7-a440ee48525f";
                 string credentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(apiKey + ":" + password));
@@ -82,17 +82,19 @@ namespace FilbcsFetchFlowInvoiceGenerator
                     }
 
                     dynamic invoiceResponse = JObject.Parse(result);
-              
+
                     using (var client = new WebClient())
                     {
                         client.Headers.Add(HttpRequestHeader.ContentType, "application/json");
                         client.Headers.Add(HttpRequestHeader.Accept, "*/*");
                         client.Headers.Add(HttpRequestHeader.Authorization, "Basic " + credentials);
-                        var emailTo = new EmailTo() {To = invoice.Email};
+                        var emailTo = new EmailTo() { To = invoice.Email };
                         var emailJson = JsonConvert.SerializeObject(emailTo);
                         byte[] bytes = Encoding.Default.GetBytes(emailJson);
-                        client.UploadString(baseUrl+ invoiceResponse.Uri+"/send", Encoding.UTF8.GetString(bytes));
+                        client.UploadString(baseUrl + invoiceResponse.Uri + "/send", Encoding.UTF8.GetString(bytes));
                         Console.WriteLine("Invoice for {0} - emailed successfully", clientName);
+
+                        //https://www.billiving.com/api2/v1/invoices/0000001824/send
                     }
                 }
 

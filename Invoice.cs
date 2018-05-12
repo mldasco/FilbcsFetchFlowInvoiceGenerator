@@ -50,7 +50,10 @@ namespace FilbcsFetchFlowXmlGenerator
         public string Email { get; set; }
 
         [DataMember]
-        public bool AcceptPayPal => true;
+        public bool AcceptPayPal
+        {
+            get { return true; }
+        }
     }
 }
     
